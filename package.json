@@ -1,20 +1,26 @@
 {
-  "name": "rogue-classic",
-  "version": "1.0.0",
-  "description": "",
+  "name": "rogue-classic-map",
+  "version": "0.0.0",
+  "description": "[![rogue-classic-dev1.gif](https://gifyu.com/images/rogue-classic-dev1.gif)](https://gifyu.com/image/SXNW)",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "devDependencies": {
-    "chance": "^1.0.6",
-    "node-range": "^0.1.0"
-  },
+  "author": "Matt McFarland <contact@mattmcfarland.com>",
+  "license": "MIT",
+  "devDependencies": {},
   "dependencies": {
-    "array2d": "0.0.5",
+    "chance": "^1.0.6",
+    "node-range": "^0.1.0",
     "pico-lambda": "^2.1.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MattMcFarland/rogue-classic-map.git"
+  },
+  "bugs": {
+    "url": "https://github.com/MattMcFarland/rogue-classic-map/issues"
+  },
+  "homepage": "https://github.com/MattMcFarland/rogue-classic-map#readme"
 }
