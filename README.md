@@ -1,5 +1,5 @@
 ## rogue-classic algorithm in javascript
-This is just the map generation
+
 [![rogue-classic-dev1.gif](https://gifyu.com/images/rogue-classic-dev1.gif)](https://gifyu.com/image/SXNW)
 
 Currently just a little prototype, but seems to work pretty well so far.  I ran into a lot of different issues while making it and for the most part it was a blast!
