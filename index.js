@@ -22,7 +22,7 @@ const genesis = pcore.pipe(
 const data = genesis()
 
 function calculateXFromSquareIndex(index) {
-  return Math.floor(index *.34 % 3)
+  return index / 3 | 0
 }
 
 function calculateYFromSquareIndex(index) {
