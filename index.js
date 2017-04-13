@@ -107,51 +107,61 @@ function connectsTo(cell, x, y) {
 function cellsConnect(cellA, cellB) {
   return (connectsTo(cellA, cellB.coords[0], cellB.coords[1]) || connectsTo(cellB, cellA.coords[0], cellA.coords[1]))
 }
+function getCellAtCoordinates(cells, x, y) {
+  return cells.find((cell) => cell.coords[0] === x && cell.coords[1] === y)
+}
 
+function justUnconnected(cells) {
+  return cells.filter((cell) => cell.connections.length === 0)
+}
+function randomCellCoords(cells) {
+  return [x, y] = chance.pickone(cells).coords
+}
 function connectCells(cells) {
-  let bonusConnections = chance.integer({ min: 2, max: 4})
-  let order = 0
-  const unconnected = (({ connected }) => connected === false)
-  while (cells.filter(unconnected).length !== 0) {
-    let cursor = chance.pickone(cells.filter(unconnected))
-    let [cursorX, cursorY] = cursor.coords
-    let found = false
-    if (order === 2900) {
-      break;
+  let unconnectedCells = justUnconnected(cells)
+  unconnectedCells = justUnconnected(cells)
+  function traverse(currentCoordinates, goalCoordinates, traversedPath, prev) {
+    const [x, y] = currentCoordinates
+    traversedPath = traversedPath || {}
+    if (x === goalCoordinates.x && y === goalCoordinates.y) return
+    if (x < 0 || x > 2) return
+    if (y < 0 || y > 2) return
+    if (`${x}-${y}` in traversedPath) return
+    const cell = getCellAtCoordinates(cells, x, y)
+    if (prev) {
+      [px, py] = prev
+      const prevCell = getCellAtCoordinates(cells, px, py)
+      traversedPath[`${x}-${y}`] = true
+      if (!prevCell.connections.length) prevCell.connections.push([x, y])
+      if (!cell.connections.length) cell.connections.push([px,py])
+      unconnectedCells = justUnconnected(cells)
     }
-    cursor.order = cursor.order === 0 ? 0 : order
-    let directions = chance.shuffle([[0, -1], [0, 1], [-1, 0], [1, 0]])
-      .forEach(([dx, dy], index) => {
-        if (cursor.connected) return
-        let nIndex = cells.findIndex(({coords}) => cellEq(coords[0], coords[1], dx + cursorX, dy + cursorY))
-        if (nIndex > -1) {
-          neighbor = cells[nIndex]
-          if (!cellsConnect(neighbor, cursor)) {
-            cursor.connections.push(neighbor.coords)
-            cursor.connected = true
-            cursorX += dx
-            cursorY += dy
-            return;
-          }
-        }
-      })
-    order++
+    traverse([x + chance.pickone([1, -1]), y], goalCoordinates, traversedPath, [x, y])
+    traverse([x, y + chance.pickone([1, -1])], goalCoordinates, traversedPath, [x, y])
   }
+  while (unconnectedCells.length > 0) {
+    console.log(unconnectedCells.length)
+    traverse(randomCellCoords(unconnectedCells), randomCellCoords(unconnectedCells))
+  }
+
+  cells.forEach(cell => {
+    console.log(cell.coords, cell.connections)
+  })
   return cells
 }
 
 function createRooms(cells) {
   const cellPadding = Math.ceil(Math.min(cellWidth, cellHeight) * .1) + 2
-  const minRoomWidth = Math.floor(cellWidth / 3)
+  const minRoomWidth = cellWidth / 3 | 0
   const maxRoomWidth = cellWidth - cellPadding
-  const minRoomHeight = Math.floor(cellHeight / 3)
+  const minRoomHeight = cellHeight / 3 | 0
   const maxRoomHeight = cellHeight - cellPadding
   const rooms = cells.map((cell, index) => {
     let [cellX, cellY] = cell.coords
     let width = maxRoomWidth > minRoomWidth ? chance.integer({ min: minRoomWidth, max: maxRoomWidth }) : maxRoomWidth
     let height = maxRoomHeight > minRoomHeight ? chance.integer({ min: minRoomHeight, max: maxRoomHeight }) : maxRoomHeight
-    let x = Math.floor(applyCenterOffset(width, cellWidth) + cellX * cellWidth)
-    let y = Math.floor(applyCenterOffset(height, cellHeight) + cellY * cellHeight)
+    let x = (applyCenterOffset(width, cellWidth) + cellX * cellWidth) | 0
+    let y = (applyCenterOffset(height, cellHeight) + cellY * cellHeight) | 0
 
     return {
       width, height,
