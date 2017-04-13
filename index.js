@@ -3,7 +3,7 @@ const range = require('node-range')
 const assert = require('assert')
 const { pcore } = require('pico-lambda')
 const mapWidth = 70 // minimum: 12
-const mapHeight = 19 // minimum 12
+const mapHeight = 26 // minimum 12
 
 const cellWidth = mapWidth / 3
 const cellHeight = mapHeight / 3
@@ -85,6 +85,7 @@ function gridMutate(grid, fromX, fromY, toX, toY, cb) {
     }
   }
 }
+
 function createCells() {
   return range(0, 9).toArray().map(index => ({
     index,
@@ -93,58 +94,58 @@ function createCells() {
     connections: []
   }))
 }
-function connectsTo(cell, x, y) {
+
+function randomCellCoords(cells) {
+  return [x, y] = chance.pickone(cells).coords
+}
+
+function add2D([x1, y1], [x2, y2]) {
+  return [x1 + x2, y1 + y2]
+}
+
+function getCellAtCoordinates(cells, [x, y]) {
+  return cells.find((cell) => {
+    return cell.coords[0] === x && cell.coords[1] === y
+  })
+}
+
+function pickNeighborCoordinates(cells, from) {
+  let neighbors = chance.shuffle([[-1, 0], [1, 0], [0, -1], [0, 1]])
   let result = false
-  cell.connections.forEach(connector => {
-    let [connX, connY] = connector
-    if (x === connX && y === connY) {
-      result = true
+  neighbors.forEach(neighbor => {
+    let neighborCoords = add2D(from, neighbor)
+    if (getCellAtCoordinates(cells, neighborCoords)) { 
+       result = neighborCoords;
     }
   })
   return result
 }
 
-function cellsConnect(cellA, cellB) {
-  return (connectsTo(cellA, cellB.coords[0], cellB.coords[1]) || connectsTo(cellB, cellA.coords[0], cellA.coords[1]))
-}
-function getCellAtCoordinates(cells, x, y) {
-  return cells.find((cell) => cell.coords[0] === x && cell.coords[1] === y)
-}
-
-function justUnconnected(cells) {
-  return cells.filter((cell) => cell.connections.length === 0)
-}
-function randomCellCoords(cells) {
-  return [x, y] = chance.pickone(cells).coords
-}
 function connectCells(cells) {
-  let unconnectedCells = justUnconnected(cells)
-  unconnectedCells = justUnconnected(cells)
-  function traverse(currentCoordinates, goalCoordinates, traversedPath, prev) {
-    const [x, y] = currentCoordinates
-    traversedPath = traversedPath || {}
-    if (x === goalCoordinates.x && y === goalCoordinates.y) return
-    if (x < 0 || x > 2) return
-    if (y < 0 || y > 2) return
-    if (`${x}-${y}` in traversedPath) return
-    const cell = getCellAtCoordinates(cells, x, y)
-    if (prev) {
-      [px, py] = prev
-      const prevCell = getCellAtCoordinates(cells, px, py)
-      traversedPath[`${x}-${y}`] = true
-      cell.connections.push([px,py])
-      unconnectedCells = justUnconnected(cells)
+  let connected = {}
+  function connect(cells) {
+    const connectedCells = Object.keys(connected)
+    if(connectedCells.length === cells.length) return
+    const from = chance.pickone(connectedCells).split(':').map(n => +n)    
+    let to = pickNeighborCoordinates(cells, from)
+    let count = 0
+    while (to === false || connected[`${to[0]}:${to[1]}`] === true) {      
+      to = pickNeighborCoordinates(cells, from)
+      count++
+      if (count > 20) return connect(cells)
     }
-    traverse([x + chance.pickone([1, -1]), y], goalCoordinates, traversedPath, [x, y])
-    traverse([x, y + chance.pickone([1, -1])], goalCoordinates, traversedPath, [x, y])
-  }
-  while (unconnectedCells.length > 1) {
-    console.log(unconnectedCells.length)
-    traverse(randomCellCoords(unconnectedCells), randomCellCoords(unconnectedCells))
-  }
 
+    connected[`${to[0]}:${to[1]}`] = true
+    
+    const cell = getCellAtCoordinates(cells, from)//.connections.push(to)
+    cell.connections.push(to)
+    connect(cells)
+  }
+  const [sx, sy] = randomCellCoords(cells)
+  connected[`${sx}:${sy}`] = true
+  connect(cells)
   cells.forEach(cell => {
-    console.log(cell.coords, cell.connections)
+    console.log(cell.coords, '->', cell.connections)
   })
   return cells
 }
@@ -221,7 +222,7 @@ function render({ cells, rooms, corridors, tiles }) {
   transpose(tiles).forEach(row => {
     str += '\n'
     row.forEach(col => {
-      str += col === 0 ? '.' : col === 1 ? '#' : '?'
+      str += col === 0 ? ' ' : col === 1 ? '#' : '?'
     })
   })
   console.log(str)
