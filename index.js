@@ -132,14 +132,13 @@ function connectCells(cells) {
       [px, py] = prev
       const prevCell = getCellAtCoordinates(cells, px, py)
       traversedPath[`${x}-${y}`] = true
-      if (!prevCell.connections.length) prevCell.connections.push([x, y])
-      if (!cell.connections.length) cell.connections.push([px,py])
+      cell.connections.push([px,py])
       unconnectedCells = justUnconnected(cells)
     }
     traverse([x + chance.pickone([1, -1]), y], goalCoordinates, traversedPath, [x, y])
     traverse([x, y + chance.pickone([1, -1])], goalCoordinates, traversedPath, [x, y])
   }
-  while (unconnectedCells.length > 0) {
+  while (unconnectedCells.length > 1) {
     console.log(unconnectedCells.length)
     traverse(randomCellCoords(unconnectedCells), randomCellCoords(unconnectedCells))
   }
