@@ -2,17 +2,23 @@
   "name": "rogue-classic-map",
   "version": "0.0.0",
   "description": "[![rogue-classic-dev1.gif](https://gifyu.com/images/rogue-classic-dev1.gif)](https://gifyu.com/image/SXNW)",
-  "main": "index.js",
+  "main": "lib/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "lint": "standard lib/**/*.js --fix | snazzy",
+    "test": "tape test/**/*.js"
   },
   "keywords": [],
   "author": "Matt McFarland <contact@mattmcfarland.com>",
   "license": "MIT",
-  "devDependencies": {},
+  "devDependencies": {
+    "nodemon": "^1.11.0",
+    "snazzy": "^7.0.0",
+    "standard": "^10.0.2",
+    "tap-difflet": "^0.7.0",
+    "tape": "^4.6.3"
+  },
   "dependencies": {
     "chance": "^1.0.6",
-    "node-range": "^0.1.0",
     "pico-lambda": "^2.1.0"
   },
   "repository": {
