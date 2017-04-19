@@ -4,6 +4,7 @@ const { pipe } = pcore
 const range = start => end => [...Array(end - start).keys()].map(v => start + v)
 const rangeTo = range(0)
 const between = (x, min, max) => x >= min && x <= max
+const roomMargin = 0.2
 
 function transpose (array) {
   return array.reduce((p, n) => n.map((item, i) => [...(p[i] || []), n[i]]), [])
@@ -135,10 +136,10 @@ function connectRooms (state) {
 }
 
 function createRoomGrid (cellWidth, cellHeight) {
-  const minWidth = cellWidth * 0.1 | 0
-  const maxWidth = cellWidth * 0.9 | 0
-  const minHeight = cellHeight * 0.1 | 0
-  const maxHeight = cellHeight * 0.9 | 0
+  const minWidth = cellWidth * roomMargin | 0
+  const maxWidth = cellWidth * (1 - roomMargin) | 0
+  const minHeight = cellHeight * roomMargin | 0
+  const maxHeight = cellHeight * (1 - roomMargin) | 0
   return function (coords) {
     return {
       width: chance.integer({min: minWidth, max: maxWidth}),
